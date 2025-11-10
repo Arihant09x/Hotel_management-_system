@@ -21,6 +21,13 @@ const app = require('./src/app');
 const logger = require('./src/middleware/winston.logger');
 
 // app listens to .env defined port
-app.listen(process.env.APP_PORT, () => {
-  logger.info(`App server running on: ${process.env.APP_BASE_URL}`);
-});
+if (process.env.VERCEL) {
+  // Running on Vercel, export your app
+  module.exports = app;
+} else {
+  // Running locally
+  app.listen(process.env.PORT || 5000, () => {
+    logger.info(`App server running on: ${process.env.APP_BASE_URL}`);
+    console.log(`Server running on port ${process.env.PORT || 5000}`);
+  });
+}
