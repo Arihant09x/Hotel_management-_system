@@ -17,8 +17,31 @@
  */
 
 // imports modules & dependencies
+const mongoose = require('mongoose');
 const app = require('./src/app');
 const logger = require('./src/middleware/winston.logger');
+
+// Update MongoDB connection with retry logic
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  retryWrites: true
+}).then(() => {
+  console.log('Database connected successfully!');
+}).catch((err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+// Handle MongoDB connection errors
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+// Handle MongoDB disconnection
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
 
 // app listens to .env defined port
 if (process.env.VERCEL) {
